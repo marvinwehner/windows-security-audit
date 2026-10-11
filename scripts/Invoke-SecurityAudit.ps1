@@ -69,6 +69,19 @@ function Limit-List {
     [ordered]@{ total = $all.Count; items = @($all | Select-Object -First $Max) }
 }
 
+# Registry value or $null if the key or value does not exist (safe under StrictMode).
+function Get-RegValue {
+    param([Parameter(Mandatory)] [string] $Path, [Parameter(Mandatory)] [string] $Name)
+    $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+    if ($item -and ($item.PSObject.Properties.Name -contains $Name)) { $item.$Name } else { $null }
+}
+
+# Severity that depends on whether the device leaves the home network.
+function Select-Severity {
+    param([Parameter(Mandatory)] [string] $Mobile, [Parameter(Mandatory)] [string] $Stationary)
+    if ($Ctx.Mobile) { $Mobile } else { $Stationary }
+}
+
 # --- environment -----------------------------------------------------------------------------------
 if (-not $OutputPath) {
     $OutputPath = Join-Path $env:USERPROFILE ("WindowsSecurityAudit\{0}\findings.json" -f (Get-Date -Format 'yyyy-MM-dd_HHmmss'))
@@ -87,11 +100,18 @@ $elevated = ([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.
 $cv = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
 $os = Get-CimInstance Win32_OperatingSystem
 
+$lifecycle = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'data\lifecycle.json')) | ConvertFrom-Json
+$devTools = @('git', 'node', 'docker', 'code', 'dotnet', 'python', 'java', 'adb' | Where-Object { Get-Command "$_.exe" -ErrorAction SilentlyContinue })
+$devMode = (Get-RegValue 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock' 'AllowDevelopmentWithoutDevLicense') -eq 1
+
 $Ctx = [pscustomobject]@{
-    Elevated = $elevated
-    Mobile   = ($Context -eq 'Mobile')
-    Build    = [int]$cv.CurrentBuild
-    Sku      = [int]$os.OperatingSystemSKU
+    Elevated  = $elevated
+    Mobile    = ($Context -eq 'Mobile')
+    Dev       = ($devMode -or $devTools.Count -ge 2)
+    Build     = [int]$cv.CurrentBuild
+    Ubr       = [int]$cv.UBR
+    Sku       = [int]$os.OperatingSystemSKU
+    Lifecycle = $lifecycle
 }
 
 Get-ChildItem -Path (Join-Path $PSScriptRoot 'checks') -Filter '*.ps1' | Sort-Object Name | ForEach-Object { . $_.FullName }
@@ -140,7 +160,13 @@ $meta = [ordered]@{
     build        = "$($cv.CurrentBuild).$($cv.UBR)"
     displayVersion = $cv.DisplayVersion
     sku          = $Ctx.Sku
+    edition      = $cv.EditionID
     uiCulture    = (Get-UICulture).Name
+    deviceType   = $(if (@(Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue).Count) { 'laptop' } else { 'desktop' })
+    developer    = $Ctx.Dev
+    devTools     = $devTools
+    dataAsOf     = $lifecycle.asOf
+    dataStale    = ((Get-Date) - [datetime]::ParseExact($lifecycle.asOf, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture)).TotalDays -gt 180
 }
 if ($base) { $meta.generatedUtc = $base.meta.generatedUtc; $meta.user = $base.meta.user }
 

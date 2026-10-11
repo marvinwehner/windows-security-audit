@@ -1,0 +1,4 @@
+# PowerShell 5.1 scripts: keep Windows line endings regardless of the user's git settings.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+* text=auto

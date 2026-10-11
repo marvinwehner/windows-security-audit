@@ -1,0 +1,17 @@
+{
+  "asOf": "2026-10-11",
+  "sources": [
+    "https://learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro",
+    "https://learn.microsoft.com/en-us/lifecycle/products/windows-11-enterprise-and-education",
+    "https://learn.microsoft.com/en-us/windows/release-health/windows11-release-information"
+  ],
+  "windows": {
+    "22621": { "release": "22H2", "homeProEnd": "2024-10-08", "enterpriseEnd": "2025-10-14" },
+    "22631": { "release": "23H2", "homeProEnd": "2025-11-11", "enterpriseEnd": "2026-11-10" },
+    "26100": { "release": "24H2", "homeProEnd": "2026-10-13", "enterpriseEnd": "2027-10-12" },
+    "26200": { "release": "25H2", "homeProEnd": "2027-10-12", "enterpriseEnd": "2028-10-10" },
+    "26300": { "release": "26H2", "homeProEnd": "2028-10-10", "enterpriseEnd": "2029-10-09" },
+    "28000": { "release": "26H1", "homeProEnd": "2028-03-14", "enterpriseEnd": "2029-03-13" }
+  },
+  "enterpriseSkus": [4, 27, 70, 72, 84, 121, 122]
+}
