@@ -1,0 +1,12 @@
+{
+  "name": "windows-security",
+  "version": "0.1.0",
+  "description": "Windows 11 security audit: numbered findings with recommendations and implications, plus optional guided fixes with backup and undo.",
+  "author": {
+    "name": "marvinwehner"
+  },
+  "homepage": "https://github.com/marvinwehner/windows-security-audit",
+  "repository": "https://github.com/marvinwehner/windows-security-audit",
+  "license": "MIT",
+  "keywords": ["windows", "security", "audit", "hardening", "defender", "firewall"]
+}

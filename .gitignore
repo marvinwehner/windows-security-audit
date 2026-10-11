@@ -1,0 +1,4 @@
+# Local audit output and test artefacts
+findings*.json
+*.admin.json
+/test-output/

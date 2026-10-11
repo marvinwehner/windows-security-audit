@@ -1,0 +1,14 @@
+{
+  "name": "windows-security-audit",
+  "description": "Windows security audit plugin for Claude Code.",
+  "owner": {
+    "name": "marvinwehner"
+  },
+  "plugins": [
+    {
+      "name": "windows-security",
+      "source": "./",
+      "description": "Windows 11 security audit: numbered findings with recommendations and implications, plus optional guided fixes with backup and undo."
+    }
+  ]
+}
